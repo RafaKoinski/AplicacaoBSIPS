@@ -211,7 +211,6 @@ button:disabled {
 
 <div class="container">
 
-    <!-- UPLOAD -->
     <div class="card">
 
         <h2>1. Enviar extratos</h2>
@@ -244,7 +243,6 @@ button:disabled {
     </div>
 
 
-    <!-- MAPEAMENTO -->
     <div class="card hidden" id="mappingCard">
 
         <h2>2. Conferir identificação</h2>
@@ -279,7 +277,6 @@ button:disabled {
     </div>
 
 
-    <!-- RESULTADOS -->
     <div class="card">
 
         <h2>3. Informações extraídas</h2>
@@ -320,7 +317,6 @@ button:disabled {
     </div>
 
 
-    <!-- AÇÕES -->
     <div class="card">
 
         <div class="actions">
@@ -700,7 +696,7 @@ function getFund(text) {
 
 
 /* ============================================================
-   CONVERSÃO DOS NÚMEROS DE UMA LINHA TOTAL
+   CONVERSÃO DOS NÚMEROS
 ============================================================ */
 
 function extractNumbers(line) {
@@ -733,14 +729,14 @@ function extractNumbers(line) {
 /*
    CDB:
 
-   Taxa
-   Vlr Princ.
-   Vlr Bruto
-   Renda Total
-   IOF
-   IRRF
-   Vlr Líquido
-   Renda Bruta Per
+   [0] Taxa
+   [1] Vlr Princ.
+   [2] Vlr Bruto
+   [3] Renda Total
+   [4] IOF
+   [5] IRRF
+   [6] Vlr Líquido
+   [7] Renda Bruta Per
 */
 
 function parseCdbTotal(line) {
@@ -776,15 +772,15 @@ function parseCdbTotal(line) {
 /*
    Fundos:
 
-   Quantidade de cotas
-   Vlr Princ.
-   Valor da Cota
-   Vlr Bruto
-   Renda Total
-   IOF
-   IRRF
-   Vlr Líquido
-   Renda Bruta Per
+   [0] Quantidade de cotas
+   [1] Vlr Princ.
+   [2] Valor da Cota
+   [3] Vlr Bruto
+   [4] Renda Total
+   [5] IOF
+   [6] IRRF
+   [7] Vlr Líquido
+   [8] Renda Bruta Per
 */
 
 function parseFundTotal(line) {
@@ -875,9 +871,11 @@ async function processPdf(file) {
 
     let allLines = [];
 
-    for (let pageNumber = 1;
-         pageNumber <= pdf.numPages;
-         pageNumber++) {
+    for (
+        let pageNumber = 1;
+        pageNumber <= pdf.numPages;
+        pageNumber++
+    ) {
 
         const page = await pdf.getPage(pageNumber);
 
@@ -904,7 +902,8 @@ async function processPdf(file) {
 
     const fund = getFund(text);
 
-    const isFund = normalize(product).includes("fundos");
+    const isFund =
+        normalize(product).includes("fundos");
 
     const parser =
         isFund
@@ -912,9 +911,9 @@ async function processPdf(file) {
             : parseCdbTotal;
 
 
-    /* ------------------------------
+    /* ========================================================
        SALDO ANTERIOR
-    ------------------------------ */
+    ======================================================== */
 
     const saldoAnterior = findSectionTotal(
 
@@ -929,9 +928,9 @@ async function processPdf(file) {
     );
 
 
-    /* ------------------------------
+    /* ========================================================
        APLICAÇÕES
-    ------------------------------ */
+    ======================================================== */
 
     const aplicacao = findSectionTotal(
 
@@ -946,9 +945,9 @@ async function processPdf(file) {
     );
 
 
-    /* ------------------------------
+    /* ========================================================
        RESGATES
-    ------------------------------ */
+    ======================================================== */
 
     const resgate = findSectionTotal(
 
@@ -963,9 +962,9 @@ async function processPdf(file) {
     );
 
 
-    /* ------------------------------
+    /* ========================================================
        SALDO FINAL
-    ------------------------------ */
+    ======================================================== */
 
     const saldoFinal = findSectionTotal(
 
@@ -980,26 +979,76 @@ async function processPdf(file) {
     );
 
 
-    /*
-       IR + IOF
+    /* ========================================================
+       REGRAS DA CONCILIAÇÃO
+    ========================================================
 
-       IMPORTANTE:
-       Somamos os impostos encontrados
-       nas operações do extrato.
+       SALDO EXTRATO
+       = Vlr Princ. do saldo anterior
 
-       O resultado é gravado negativo.
+       RESGATE
+       = Vlr Líquido do total de resgates
+
+       RENDIMENTO
+       = Renda Total do resgate
+       + Renda Total do saldo final
+
+       IR E IOF
+       = somente IRRF + IOF do resgate
     */
 
-    const impostos =
 
-        (saldoAnterior?.iof || 0) +
-        (saldoAnterior?.irrf || 0) +
+    const saldoExtrato =
+        saldoAnterior?.principal ?? null;
 
-        (aplicacao?.iof || 0) +
-        (aplicacao?.irrf || 0) +
 
-        (resgate?.iof || 0) +
-        (resgate?.irrf || 0);
+    /*
+       O resgate deve utilizar o
+       Vlr Líquido e não o Vlr Princ.
+    */
+
+    const valorResgate =
+        resgate?.liquido ?? null;
+
+
+    /*
+       Rendimento:
+       rendimento do resgate
+       +
+       rendimento apresentado no
+       total do saldo final.
+    */
+
+    const rendimentoResgate =
+        resgate?.rendimento ?? 0;
+
+    const rendimentoSaldoFinal =
+        saldoFinal?.rendimento ?? 0;
+
+    const rendimento =
+        rendimentoResgate +
+        rendimentoSaldoFinal;
+
+
+    /*
+       IR + IOF:
+       SOMENTE do resgate.
+    */
+
+    const impostosResgate =
+        (resgate?.iof ?? 0) +
+        (resgate?.irrf ?? 0);
+
+
+    /*
+       Os impostos entram negativos
+       na planilha.
+    */
+
+    const irIof =
+        impostosResgate === 0
+            ? 0
+            : -Math.abs(impostosResgate);
 
 
     return {
@@ -1018,25 +1067,53 @@ async function processPdf(file) {
 
         isFund,
 
-        saldoExtrato:
-            saldoAnterior?.principal ?? null,
+        saldoExtrato,
 
+        /*
+           Resgate = Vlr Líquido
+        */
         resgate:
-            resgate?.principal ?? null,
+            valorResgate,
 
         aplicacao:
             aplicacao?.principal ?? null,
 
-        rendimento:
-            resgate?.rendimento ?? null,
+        /*
+           Rendimento =
+           resgate + saldo final
+        */
+        rendimento,
 
-        irIof:
-            impostos === 0
-                ? 0
-                : -Math.abs(impostos),
+        /*
+           IR e IOF =
+           somente resgate
+        */
+        irIof,
 
         saldoFinal:
             saldoFinal?.liquido ?? null,
+
+        /*
+           Dados individuais mantidos
+           para conferência/debug.
+        */
+        debug: {
+
+            saldoAnterior,
+
+            aplicacao,
+
+            resgate,
+
+            saldoFinal,
+
+            rendimentoResgate,
+
+            rendimentoSaldoFinal,
+
+            impostosResgate
+
+        },
 
         lines: allLines
 
@@ -1317,7 +1394,11 @@ function renderResults() {
                 </td>
 
                 <td class="numeric">
-                    ${formatMoney(result.resgate)}
+                    ${formatMoney(
+                        result.resgate !== null
+                            ? -Math.abs(result.resgate)
+                            : null
+                    )}
                 </td>
 
                 <td class="numeric">
@@ -1358,23 +1439,6 @@ function createWorkbook() {
         const rows =
             SHEETS[sheetName];
 
-
-        /*
-           Estrutura semelhante à sua planilha:
-
-           A = código
-           B = descrição
-           C = saldo contábil
-           D = saldo extrato
-           E = diferença
-           F = resgates
-           G = aplicação
-           H = rendimento
-           I = IR e IOF
-           J = saldo
-           K = saldo final
-           L = diferença
-        */
 
         const data = [
 
@@ -1418,10 +1482,6 @@ function createWorkbook() {
         }
 
 
-        /*
-           Linha de total
-        */
-
         const totalRow =
             data.length + 1;
 
@@ -1449,7 +1509,8 @@ function createWorkbook() {
 
 
         /*
-           Fórmulas de diferença e saldo
+           Fórmula da diferença:
+           Saldo Extrato - Saldo Contábil
         */
 
         for (let r = 2; r < totalRow; r++) {
@@ -1461,12 +1522,26 @@ function createWorkbook() {
                 };
 
 
+            /*
+               Saldo =
+               Saldo Contábil
+               + Resgate
+               + Aplicação
+               + Rendimento
+               + IR/IOF
+            */
+
             ws[`J${r}`] =
                 {
                     t: "f",
                     f: `SUM(C${r},F${r}:I${r})`
                 };
 
+
+            /*
+               Diferença =
+               Saldo Final - Saldo
+            */
 
             ws[`L${r}`] =
                 {
@@ -1476,10 +1551,6 @@ function createWorkbook() {
 
         }
 
-
-        /*
-           Formatação
-        */
 
         ws["!cols"] = [
 
@@ -1608,10 +1679,6 @@ function generateWorkbook() {
         createWorkbook();
 
 
-    /*
-       Agora grava os valores extraídos.
-    */
-
     for (const result of results) {
 
         const ws =
@@ -1625,7 +1692,9 @@ function generateWorkbook() {
 
 
         /*
-           D = Saldo extrato
+           D = SALDO EXTRATO
+
+           Vlr Princ. do Saldo Anterior
         */
 
         ws[`D${r}`] = {
@@ -1638,14 +1707,17 @@ function generateWorkbook() {
 
 
         /*
-           F = Resgate
+           F = RESGATE
 
-           Resgate entra negativo.
+           Vlr Líquido do Total de Resgates.
+
+           Entra negativo.
         */
 
         ws[`F${r}`] = {
 
             t: "n",
+
             v: result.resgate
                 ? -Math.abs(result.resgate)
                 : 0,
@@ -1656,7 +1728,9 @@ function generateWorkbook() {
 
 
         /*
-           G = Aplicação
+           G = APLICAÇÃO
+
+           Vlr Princ. do Total de Aplicações.
         */
 
         ws[`G${r}`] = {
@@ -1669,7 +1743,11 @@ function generateWorkbook() {
 
 
         /*
-           H = Rendimento
+           H = RENDIMENTO
+
+           Renda Total do Resgate
+           +
+           Renda Total do Saldo Final.
         */
 
         ws[`H${r}`] = {
@@ -1682,7 +1760,11 @@ function generateWorkbook() {
 
 
         /*
-           I = IR + IOF
+           I = IR E IOF
+
+           SOMENTE IRRF + IOF DO RESGATE.
+
+           Entra negativo.
         */
 
         ws[`I${r}`] = {
@@ -1695,7 +1777,9 @@ function generateWorkbook() {
 
 
         /*
-           K = Saldo final
+           K = SALDO FINAL
+
+           Vlr Líquido do Total do Saldo Final.
         */
 
         ws[`K${r}`] = {

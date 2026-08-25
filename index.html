@@ -743,7 +743,7 @@ function parseCdbTotal(line) {
 
     const n = extractNumbers(line);
 
-    if (n.length < 7)
+    if (n.length < 8)
         return null;
 
     return {
@@ -752,18 +752,19 @@ function parseCdbTotal(line) {
 
         bruto: n[2],
 
-        rendimento: n[3],
+        rendaTotal: n[3],
 
         iof: n[4],
 
         irrf: n[5],
 
-        liquido: n[6]
+        liquido: n[6],
+
+        rendaBrutaPer: n[7]
 
     };
 
 }
-
 
 /* ============================================================
    PARSE DE TOTAL - FUNDOS
@@ -787,7 +788,7 @@ function parseFundTotal(line) {
 
     const n = extractNumbers(line);
 
-    if (n.length < 8)
+    if (n.length < 9)
         return null;
 
     return {
@@ -796,13 +797,15 @@ function parseFundTotal(line) {
 
         bruto: n[3],
 
-        rendimento: n[4],
+        rendaTotal: n[4],
 
         iof: n[5],
 
         irrf: n[6],
 
-        liquido: n[7]
+        liquido: n[7],
+
+        rendaBrutaPer: n[8]
 
     };
 
@@ -1020,14 +1023,14 @@ async function processPdf(file) {
     */
 
     const rendimentoResgate =
-        resgate?.rendimento ?? 0;
+    resgate?.rendaBrutaPer ?? 0;
 
-    const rendimentoSaldoFinal =
-        saldoFinal?.rendimento ?? 0;
+const rendimentoSaldoFinal =
+    saldoFinal?.rendaBrutaPer ?? 0;
 
-    const rendimento =
-        rendimentoResgate +
-        rendimentoSaldoFinal;
+const rendimento =
+    rendimentoResgate +
+    rendimentoSaldoFinal;
 
 
     /*

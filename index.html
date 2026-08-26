@@ -3,10 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>BSI - Conciliação de Aplicações Bradesco</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs" type="module"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 
 <style>
@@ -23,7 +21,7 @@ body {
 
 .header {
     background: #1f4e79;
-    color: white;
+    color: #fff;
     padding: 20px 30px;
 }
 
@@ -44,7 +42,7 @@ body {
 }
 
 .card {
-    background: white;
+    background: #fff;
     border-radius: 10px;
     padding: 22px;
     margin-bottom: 20px;
@@ -92,7 +90,7 @@ table {
 
 th {
     background: #1f4e79;
-    color: white;
+    color: #fff;
     padding: 10px;
     text-align: left;
 }
@@ -129,17 +127,17 @@ button {
 
 .btn-primary {
     background: #1f4e79;
-    color: white;
+    color: #fff;
 }
 
 .btn-success {
     background: #198754;
-    color: white;
+    color: #fff;
 }
 
 .btn-secondary {
     background: #6c757d;
-    color: white;
+    color: #fff;
 }
 
 button:disabled {
@@ -168,11 +166,6 @@ button:disabled {
     display: none;
 }
 
-.error {
-    color: #b00020;
-    font-weight: bold;
-}
-
 .badge {
     display: inline-block;
     padding: 5px 8px;
@@ -188,16 +181,6 @@ button:disabled {
 .badge-warning {
     background: #fff3cd;
     color: #664d03;
-}
-
-@media(max-width:800px) {
-    .container {
-        padding: 10px;
-    }
-
-    table {
-        font-size: 12px;
-    }
 }
 </style>
 </head>
@@ -355,244 +338,196 @@ button:disabled {
 
 <script type="module">
 
-/* ============================================================
-   PDF.JS
-============================================================ */
-
-import * as pdfjsLib
-from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
+import * as pdfjsLib from
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.min.mjs";
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
-    "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
+"https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.4.168/pdf.worker.min.mjs";
 
-
-/* ============================================================
-   ESTRUTURA DAS ABAS
-============================================================ */
 
 const SHEETS = {
 
     "3 Aplicação": [
-        {row:2, desc:"DI SPECIAL"},
-        {row:3, desc:"BRADESCO DI MAX"},
-        {row:4, desc:"CDB II"}
+        {row:3,code:"DI SPECIAL",desc:"DI SPECIAL"},
+        {row:4,code:"BRADESCO DI MAX",desc:"BRADESCO DI MAX"},
+        {row:5,code:"CDB II",desc:"CDB II"}
     ],
 
     "4 Aplicação": [
-        {row:2, desc:"CDB FIDELIDADE"},
-        {row:3, desc:"FUNDO DI SPECIAL"},
-        {row:4, desc:"FUNDO RESERVA - MAX"},
-        {row:5, desc:"CDB"},
-        {row:6, desc:"CDB (0510000-3)"}
+        {row:3,code:"CDB FIDELIDADE",desc:"CDB FIDELIDADE"},
+        {row:4,code:"FUNDO DI SPECIAL",desc:"FUNDO DI SPECIAL"},
+        {row:5,code:"FUNDO RESERVA - MAX",desc:"FUNDO RESERVA - MAX"},
+        {row:6,code:"CDB",desc:"CDB"},
+        {row:7,code:"CDB (0510000-3)",desc:"CDB (0510000-3)"}
     ],
 
     "7 Aplicação": [
-        {row:2, desc:"CDB FIDELIDADE BRADESCO"},
-        {row:3, desc:"FUNDO MAX"},
-        {row:4, desc:"CDB FACIL"},
-        {row:5, desc:"FUNDO DI SPECIAL"},
-        {row:6, desc:"RESERVA LIQUIDEZ"},
-        {row:7, desc:"FUNDO DI SPECIAL MAX DI REF"}
+        {row:3,code:13,desc:"FUNDO REF DI PLUS"},
+        {row:4,code:14,desc:"FUNDO MAX"},
+        {row:5,code:15,desc:"CDB FACIL"},
+        {row:6,code:16,desc:"FUNDO REF DI SPECIAL"},
+        {row:7,code:17,desc:"RESERVA LIQUIDEZ"},
+        {row:8,code:397,desc:"FUNDO REF DI MAX"}
     ],
 
     "11 Aplicação": [
-        {row:2, desc:"Brad FIC FI Renda Fixa Ref DI Special - 0501025-0"},
-        {row:3, desc:"CDB 0501027-6"},
-        {row:4, desc:"Brad FIC FI Renda Fixa Ref DI Special - 0501027-6"},
-        {row:5, desc:"CDB 0501025-0"},
-        {row:6, desc:"DI MAX - 0501027-6"},
-        {row:7, desc:"Bradesco FIC FI RF Referenciado DI Max - 0501025-0"},
-        {row:8, desc:"Fundo Reserva Bradesco FIC FI RF DI MAX II"},
-        {row:9, desc:"SALDO CONTA CORRENTE"}
+        {row:3,code:"CDB 0501027-6",desc:"CDB 0501027-6"},
+        {row:4,code:"Brad FIC FI Renda Fixa Ref DI Special - 0501027-6",desc:"Brad FIC FI Renda Fixa Ref DI Special - 0501027-6"},
+        {row:5,code:"CDB 0501025-0",desc:"CDB 0501025-0"},
+        {row:6,code:"DI MAX - 0501027-6",desc:"DI MAX - 0501027-6"},
+        {row:7,code:"Bradesco Fundo Sem Movimento",desc:"Bradesco Fundo Sem Movimento"},
+        {row:8,code:"Bradesco FIC FI RF Referenciado DI Max - 0501025-0",desc:"Bradesco FIC FI RF Referenciado DI Max - 0501025-0"},
+        {row:9,code:"Fundo Reserva Bradesco FIC FI RF DI MAX II",desc:"Fundo Reserva Bradesco FIC FI RF DI MAX II"},
+        {row:10,code:"SALDO CONTA CORRENTE",desc:"SALDO CONTA CORRENTE"}
     ],
 
     "15 Aplicação": [
-        {row:2, desc:"CDB I (0185179-9)"},
-        {row:3, desc:"MAX DI II (0185179-9)"},
-        {row:4, desc:"CDB VI (0185179-9)"},
-        {row:5, desc:"MAX DI"},
-        {row:6, desc:"DI SPECIAL"},
-        {row:7, desc:"CDB III (0185179-9)"},
-        {row:8, desc:"RENDA FIXA DI"},
-        {row:9, desc:"CDB II (0185182-9)"},
-        {row:10, desc:"CDB IV (0185182-9)"},
-        {row:11, desc:"CDB V (0185182-9)"},
-        {row:12, desc:"FIC FI RF DI MAX (0185182-9)"}
+        {row:3,code:"CDB I (0185179-9)",desc:"CDB I (0185179-9)"},
+        {row:4,code:"MAX DI II (0185179-9)",desc:"MAX DI II (0185179-9)"},
+        {row:5,code:"CDB VI (0185179-9)",desc:"CDB VI (0185179-9)"},
+        {row:6,code:"MAX DI",desc:"MAX DI"},
+        {row:7,code:"DI SPECIAL",desc:"DI SPECIAL"},
+        {row:8,code:"CDB III (0185179-9)",desc:"CDB III (0185179-9)"},
+        {row:9,code:"RENDA FIXA DI",desc:"RENDA FIXA DI"},
+        {row:10,code:"CDB II (0185182-9)",desc:"CDB II (0185182-9)"},
+        {row:11,code:"CDB IV (0185182-9)",desc:"CDB IV (0185182-9)"},
+        {row:12,code:"CDB V (0185182-9)",desc:"CDB V (0185182-9)"},
+        {row:13,code:"FIC FI RF DI MAX (0185182-9)",desc:"FIC FI RF DI MAX (0185182-9)"}
     ],
 
     "20 Aplicação": [
-        {row:2, desc:"CDB"},
-        {row:3, desc:"MAX DI"},
-        {row:4, desc:"DI SPECIAL"},
-        {row:5, desc:"RENDA FIXA DI"},
-        {row:6, desc:"CDB"},
-        {row:7, desc:"CDB"},
-        {row:8, desc:"CDB II (0503136-2)"}
+        {row:3,code:"CDB",desc:"CDB"},
+        {row:4,code:"MAX DI",desc:"MAX DI"},
+        {row:5,code:"DI SPECIAL",desc:"DI SPECIAL"},
+        {row:6,code:"RENDA FIXA DI",desc:"RENDA FIXA DI"},
+        {row:7,code:"CDB",desc:"CDB"},
+        {row:8,code:"CDB",desc:"CDB"},
+        {row:9,code:"CDB II (0503136-2)",desc:"CDB II (0503136-2)"}
     ],
 
     "21 Aplicação": [
-        {row:2, desc:"CDB I"},
-        {row:3, desc:"MAX DI (0185191-8)"},
-        {row:4, desc:"CDB II"},
-        {row:5, desc:"CDB III"},
-        {row:6, desc:"CDB IV"}
+        {row:3,code:"CDB I",desc:"CDB I"},
+        {row:4,code:"MAX DI (0185191-8)",desc:"MAX DI (0185191-8)"},
+        {row:5,code:"CDB II",desc:"CDB II"},
+        {row:6,code:"CDB III",desc:"CDB III"},
+        {row:7,code:"CDB IV",desc:"CDB IV"}
     ],
 
     "22 Aplicação": [
-        {row:2, desc:"CDB I"},
-        {row:3, desc:"MAX DI (0611976-0)"},
-        {row:4, desc:"CDB II"},
-        {row:5, desc:"CDB III"}
+        {row:3,code:"CDB I",desc:"CDB I"},
+        {row:4,code:"MAX DI (0611976-0)",desc:"MAX DI (0611976-0)"},
+        {row:5,code:"CDB II",desc:"CDB II"},
+        {row:6,code:"CDB III",desc:"CDB III"}
     ],
 
     "23 Aplicação": [
-        {row:2, desc:"CDB I 0611979-4"},
-        {row:3, desc:"MAX DI 0611979-4"},
-        {row:4, desc:"CDB II 0611978-6"},
-        {row:5, desc:"CDB III 0611978-6"},
-        {row:6, desc:"MAX DI 0611978-6"},
-        {row:7, desc:"MAX DI 0611979-4"}
+        {row:3,code:"CDB I 0611979-4",desc:"CDB I 0611979-4"},
+        {row:4,code:"MAX DI 0611979-4",desc:"MAX DI 0611979-4"},
+        {row:5,code:"CDB II 0611978-6",desc:"CDB II 0611978-6"},
+        {row:6,code:"CDB III 0611978-6",desc:"CDB III 0611978-6"},
+        {row:7,code:"MAX DI 0611978-6",desc:"MAX DI 0611978-6"},
+        {row:8,code:"MAX DI 0611979-4",desc:"MAX DI 0611979-4"}
     ],
 
     "24 Aplicação": [
-        {row:2, desc:"7748 0185187-0 CDB"},
-        {row:3, desc:"050114-3 CDB"},
-        {row:4, desc:"FUNDOS DI MAX 0185187-0"},
-        {row:5, desc:"FUNDDOS DI PLUS"}
+        {row:3,code:"7748 0185187-0 CDB",desc:"7748 0185187-0 CDB"},
+        {row:4,code:"050114-3 CDB",desc:"050114-3 CDB"},
+        {row:5,code:"FUNDOS DI MAX 0185187-0",desc:"FUNDOS DI MAX 0185187-0"},
+        {row:6,code:"FUNDDOS DI PLUS",desc:"FUNDDOS DI PLUS"}
     ],
 
     "25 Aplicação": [
-        {row:2, desc:"0005695-2 FUNDOS"},
-        {row:3, desc:"0005695-2 CDB"},
-        {row:4, desc:"0005669-3"}
+        {row:3,code:"0005695-2 FUNDOS",desc:"0005695-2 FUNDOS"},
+        {row:4,code:"0005695-2 CDB",desc:"0005695-2 CDB"},
+        {row:5,code:"0005669-3",desc:"0005669-3"}
     ]
 
 };
 
-
-/* ============================================================
-   VARIÁVEIS
-============================================================ */
 
 let files = [];
 let results = [];
 let generatedWorkbook = null;
 
 
-/* ============================================================
-   FUNÇÕES AUXILIARES
-============================================================ */
-
-function $(id) {
-    return document.getElementById(id);
-}
+const $ = id => document.getElementById(id);
 
 
-function normalize(text) {
-
-    return String(text || "")
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .toLowerCase()
-        .replace(/[^a-z0-9]/g, "");
-
-}
+const norm = s =>
+    String(s ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g,"");
 
 
-function money(value) {
+function money(v) {
 
-    if (value === null || value === undefined)
-        return null;
+    if (v == null) return null;
 
-    let text = String(value)
-        .replace("R$", "")
+    let t = String(v)
+        .replace(/R\$/g,"")
         .trim();
 
-    if (!text)
-        return null;
+    if (!t) return null;
 
-    text = text
-        .replace(/\./g, "")
-        .replace(",", ".");
+    t = t
+        .replace(/\./g,"")
+        .replace(",",".");
 
-    const number = Number(text);
+    const n = Number(t);
 
-    return Number.isFinite(number)
-        ? number
+    return Number.isFinite(n)
+        ? n
         : null;
 
 }
 
 
-function formatMoney(value) {
+function fmt(v) {
 
-    if (value === null || value === undefined)
-        return "—";
-
-    return Number(value).toLocaleString(
-        "pt-BR",
-        {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }
-    );
-
-}
-
-
-function escapeHtml(text) {
-
-    return String(text || "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+    return v == null
+        ? "—"
+        : Number(v).toLocaleString(
+            "pt-BR",
+            {
+                minimumFractionDigits:2,
+                maximumFractionDigits:2
+            }
+        );
 
 }
 
 
-/* ============================================================
-   NOME DA ABA
-============================================================ */
+function esc(s) {
 
-function getPrefix(filename) {
+    return String(s ?? "")
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;")
+        .replace(/"/g,"&quot;")
+        .replace(/'/g,"&#039;");
 
-    return filename
-        .split("_")[0]
-        .trim();
+}
 
+
+function getPrefix(name) {
+    return name.split("_")[0].trim();
 }
 
 
 function findSheet(prefix) {
 
-    const normalized = normalize(prefix);
+    const p = norm(prefix);
 
-    for (const sheet of Object.keys(SHEETS)) {
-
-        const n = normalize(sheet);
-
-        if (n === normalized)
-            return sheet;
-
-        if (
-            n.replace(/^0+/, "") ===
-            normalized.replace(/^0+/, "")
-        ) {
-            return sheet;
-        }
-
-    }
-
-    return null;
+    return Object.keys(SHEETS).find(s =>
+        norm(s) === p ||
+        norm(s).replace(/^0+/,'') ===
+        p.replace(/^0+/,'')
+    ) || null;
 
 }
 
-
-/* ============================================================
-   EXTRAÇÃO DE LINHAS DO PDF
-============================================================ */
 
 function buildLines(items) {
 
@@ -600,42 +535,35 @@ function buildLines(items) {
 
     for (const item of items) {
 
-        if (!item.str)
-            continue;
+        if (!item.str) continue;
 
         const y = Math.round(item.transform[5]);
 
-        let group = groups.find(
-            g => Math.abs(g.y - y) <= 2
+        let g = groups.find(
+            x => Math.abs(x.y-y) <= 2
         );
 
-        if (!group) {
-
-            group = {
-                y,
-                items: []
-            };
-
-            groups.push(group);
-
+        if (!g) {
+            g = {y,items:[]};
+            groups.push(g);
         }
 
-        group.items.push(item);
+        g.items.push(item);
 
     }
 
-    groups.sort((a,b) => b.y - a.y);
+    groups.sort((a,b) => b.y-a.y);
 
-    return groups.map(group => {
+    return groups.map(g => {
 
-        group.items.sort(
-            (a,b) => a.transform[4] - b.transform[4]
+        g.items.sort(
+            (a,b) => a.transform[4]-b.transform[4]
         );
 
-        return group.items
-            .map(item => item.str)
+        return g.items
+            .map(x => x.str)
             .join(" ")
-            .replace(/\s+/g, " ")
+            .replace(/\s+/g," ")
             .trim();
 
     }).filter(Boolean);
@@ -643,101 +571,50 @@ function buildLines(items) {
 }
 
 
-/* ============================================================
-   IDENTIFICA CONTA
-============================================================ */
-
 function getAccount(text) {
 
-    const match = text.match(
+    const m = text.match(
         /Ag[eê]ncia\/conta:\s*([0-9]+)\s*\|\s*([0-9]+-[0-9])/i
     );
 
-    if (!match)
-        return null;
-
-    return match[2];
+    return m ? m[2] : null;
 
 }
 
-
-/* ============================================================
-   IDENTIFICA PRODUTO
-============================================================ */
 
 function getProduct(text) {
 
-    const match = text.match(
+    const m = text.match(
         /Produto:\s*([^\n]+)/i
     );
 
-    return match
-        ? match[1].trim()
-        : "";
+    return m ? m[1].trim() : "";
 
 }
 
-
-/* ============================================================
-   IDENTIFICA FUNDO
-============================================================ */
 
 function getFund(text) {
 
-    const match = text.match(
+    const m = text.match(
         /Fundo:\s*([^\n]+)/i
     );
 
-    return match
-        ? match[1].trim()
-        : "";
+    return m ? m[1].trim() : "";
 
 }
 
-
-/* ============================================================
-   CONVERSÃO DOS NÚMEROS
-============================================================ */
 
 function extractNumbers(line) {
 
-    const tokens = line
-        .replace(/^Total\s*/i, "")
+    return line
+        .replace(/^Total\s*/i,"")
         .trim()
-        .split(/\s+/);
-
-    const numbers = [];
-
-    for (const token of tokens) {
-
-        const value = money(token);
-
-        if (value !== null)
-            numbers.push(value);
-
-    }
-
-    return numbers;
+        .split(/\s+/)
+        .map(money)
+        .filter(v => v !== null);
 
 }
 
-
-/* ============================================================
-   PARSE DE TOTAL - CDB
-============================================================ */
-
-/*
-   CDB:
-
-   [0] Taxa
-   [1] Vlr Princ.
-   [2] Vlr Bruto
-   [3] Renda Total
-   [4] IOF
-   [5] IRRF
-   [6] Vlr Líquido
-   [7] Renda Bruta Per
-*/
 
 function parseCdbTotal(line) {
 
@@ -747,42 +624,17 @@ function parseCdbTotal(line) {
         return null;
 
     return {
-
-        principal: n[1],
-
-        bruto: n[2],
-
-        rendaTotal: n[3],
-
-        iof: n[4],
-
-        irrf: n[5],
-
-        liquido: n[6],
-
-        rendaBrutaPer: n[7]
-
+        principal:n[1],
+        bruto:n[2],
+        rendaTotal:n[3],
+        iof:n[4],
+        irrf:n[5],
+        liquido:n[6],
+        rendaBrutaPer:n[7]
     };
 
 }
 
-/* ============================================================
-   PARSE DE TOTAL - FUNDOS
-============================================================ */
-
-/*
-   Fundos:
-
-   [0] Quantidade de cotas
-   [1] Vlr Princ.
-   [2] Valor da Cota
-   [3] Vlr Bruto
-   [4] Renda Total
-   [5] IOF
-   [6] IRRF
-   [7] Vlr Líquido
-   [8] Renda Bruta Per
-*/
 
 function parseFundTotal(line) {
 
@@ -792,34 +644,27 @@ function parseFundTotal(line) {
         return null;
 
     return {
-
-        principal: n[1],
-
-        bruto: n[3],
-
-        rendaTotal: n[4],
-
-        iof: n[5],
-
-        irrf: n[6],
-
-        liquido: n[7],
-
-        rendaBrutaPer: n[8]
-
+        principal:n[1],
+        bruto:n[3],
+        rendaTotal:n[4],
+        iof:n[5],
+        irrf:n[6],
+        liquido:n[7],
+        rendaBrutaPer:n[8]
     };
 
 }
 
 
-/* ============================================================
-   IDENTIFICA TOTAIS POR SEÇÃO
-============================================================ */
-
-function findSectionTotal(lines, sectionStart, sectionEnd, parser) {
+function findSectionTotal(
+    lines,
+    startRe,
+    endRe,
+    parser
+) {
 
     const start = lines.findIndex(
-        line => sectionStart.test(line)
+        x => startRe.test(x)
     );
 
     if (start < 0)
@@ -827,29 +672,35 @@ function findSectionTotal(lines, sectionStart, sectionEnd, parser) {
 
     let end = lines.length;
 
-    if (sectionEnd) {
+    if (endRe) {
 
-        for (let i = start + 1; i < lines.length; i++) {
+        for (
+            let i = start + 1;
+            i < lines.length;
+            i++
+        ) {
 
-            if (sectionEnd.test(lines[i])) {
-
+            if (endRe.test(lines[i])) {
                 end = i;
                 break;
-
             }
 
         }
 
     }
 
-    for (let i = start + 1; i < end; i++) {
+    for (
+        let i = start + 1;
+        i < end;
+        i++
+    ) {
 
         if (/^Total\b/i.test(lines[i])) {
 
-            const total = parser(lines[i]);
+            const t = parser(lines[i]);
 
-            if (total)
-                return total;
+            if (t)
+                return t;
 
         }
 
@@ -860,19 +711,15 @@ function findSectionTotal(lines, sectionStart, sectionEnd, parser) {
 }
 
 
-/* ============================================================
-   PROCESSA UM PDF
-============================================================ */
-
 async function processPdf(file) {
 
-    const arrayBuffer = await file.arrayBuffer();
+    const buf = await file.arrayBuffer();
 
     const pdf = await pdfjsLib.getDocument({
-        data: arrayBuffer
+        data:buf
     }).promise;
 
-    let allLines = [];
+    let lines = [];
 
     for (
         let pageNumber = 1;
@@ -880,253 +727,110 @@ async function processPdf(file) {
         pageNumber++
     ) {
 
-        const page = await pdf.getPage(pageNumber);
+        const page =
+            await pdf.getPage(pageNumber);
 
         const content =
             await page.getTextContent({
-                normalizeWhitespace: true
+                normalizeWhitespace:true
             });
 
-        allLines.push(
+        lines.push(
             ...buildLines(content.items)
         );
 
     }
 
-    const text = allLines.join("\n");
+    const text = lines.join("\n");
 
     const prefix = getPrefix(file.name);
-
     const sheet = findSheet(prefix);
 
     const account = getAccount(text);
-
     const product = getProduct(text);
-
     const fund = getFund(text);
 
     const isFund =
-        normalize(product).includes("fundos");
+        norm(product).includes("fundos");
 
     const parser =
         isFund
             ? parseFundTotal
             : parseCdbTotal;
 
+    const saldoAnterior =
+        findSectionTotal(
+            lines,
+            /Saldo anterior em/i,
+            /Aplicações/i,
+            parser
+        );
 
-    /* ========================================================
-       SALDO ANTERIOR
-    ======================================================== */
+    const aplicacao =
+        findSectionTotal(
+            lines,
+            /^Aplicações/i,
+            /Resgates\s*\/\s*Vencimentos/i,
+            parser
+        );
 
-    const saldoAnterior = findSectionTotal(
+    const resgate =
+        findSectionTotal(
+            lines,
+            /^Resgates\s*\/\s*Vencimentos/i,
+            /Saldo final em/i,
+            parser
+        );
 
-        allLines,
+    const saldoFinal =
+        findSectionTotal(
+            lines,
+            /Saldo final em/i,
+            null,
+            parser
+        );
 
-        /Saldo anterior em/i,
-
-        /Aplicações/i,
-
-        parser
-
-    );
-
-
-    /* ========================================================
-       APLICAÇÕES
-    ======================================================== */
-
-    const aplicacao = findSectionTotal(
-
-        allLines,
-
-        /^Aplicações/i,
-
-        /Resgates\s*\/\s*Vencimentos/i,
-
-        parser
-
-    );
-
-
-    /* ========================================================
-       RESGATES
-    ======================================================== */
-
-    const resgate = findSectionTotal(
-
-        allLines,
-
-        /^Resgates\s*\/\s*Vencimentos/i,
-
-        /Saldo final em/i,
-
-        parser
-
-    );
-
-
-    /* ========================================================
-       SALDO FINAL
-    ======================================================== */
-
-    const saldoFinal = findSectionTotal(
-
-        allLines,
-
-        /Saldo final em/i,
-
-        null,
-
-        parser
-
-    );
-
-
-    /* ========================================================
-       REGRAS DA CONCILIAÇÃO
-    ========================================================
-
-       SALDO EXTRATO
-       = Vlr Princ. do saldo anterior
-
-       RESGATE
-       = Vlr Líquido do total de resgates
-
-       RENDIMENTO
-       = Renda Total do resgate
-       + Renda Total do saldo final
-
-       IR E IOF
-       = somente IRRF + IOF do resgate
-    */
-
-
-    const saldoExtrato =
-        saldoAnterior?.principal ?? null;
-
-
-    /*
-       O resgate deve utilizar o
-       Vlr Líquido e não o Vlr Princ.
-    */
-
-    const valorResgate =
-        resgate?.liquido ?? null;
-
-
-    /*
-       Rendimento:
-       rendimento do resgate
-       +
-       rendimento apresentado no
-       total do saldo final.
-    */
-
-    const rendimentoResgate =
-    resgate?.rendaBrutaPer ?? 0;
-
-const rendimentoSaldoFinal =
-    saldoFinal?.rendaBrutaPer ?? 0;
-
-const rendimento =
-    rendimentoResgate +
-    rendimentoSaldoFinal;
-
-
-    /*
-       IR + IOF:
-       SOMENTE do resgate.
-    */
-
-    const impostosResgate =
-        (resgate?.iof ?? 0) +
-        (resgate?.irrf ?? 0);
-
-
-    /*
-       Os impostos entram negativos
-       na planilha.
-    */
+    const rendimento =
+        (resgate?.rendaBrutaPer || 0) +
+        (saldoFinal?.rendaBrutaPer || 0);
 
     const irIof =
-        impostosResgate === 0
-            ? 0
-            : -Math.abs(impostosResgate);
-
+        (resgate?.iof || 0) +
+        (resgate?.irrf || 0);
 
     return {
 
-        file: file.name,
-
+        file:file.name,
         prefix,
-
         sheet,
-
         account,
-
         product,
-
         fund,
-
         isFund,
 
-        saldoExtrato,
+        saldoExtrato:
+            saldoAnterior?.principal ?? null,
 
-        /*
-           Resgate = Vlr Líquido
-        */
         resgate:
-            valorResgate,
+            resgate?.liquido ?? null,
 
         aplicacao:
             aplicacao?.principal ?? null,
 
-        /*
-           Rendimento =
-           resgate + saldo final
-        */
         rendimento,
 
-        /*
-           IR e IOF =
-           somente resgate
-        */
         irIof,
 
         saldoFinal:
             saldoFinal?.liquido ?? null,
 
-        /*
-           Dados individuais mantidos
-           para conferência/debug.
-        */
-        debug: {
-
-            saldoAnterior,
-
-            aplicacao,
-
-            resgate,
-
-            saldoFinal,
-
-            rendimentoResgate,
-
-            rendimentoSaldoFinal,
-
-            impostosResgate
-
-        },
-
-        lines: allLines
+        lines
 
     };
 
 }
-
-
-/* ============================================================
-   IDENTIFICA A LINHA DA PLANILHA
+    /* ============================================================
+   MAPEAMENTO DAS LINHAS DA PRIMEIRA TABELA
 ============================================================ */
 
 function findCandidates(result) {
@@ -1137,65 +841,64 @@ function findCandidates(result) {
     if (!rows.length)
         return [];
 
-
     const account =
-        normalize(result.account);
-
+        norm(result.account);
 
     /*
-       Primeiro tenta encontrar a conta
-       dentro da descrição.
+       Primeiro tenta localizar pela conta.
     */
 
     if (account) {
 
-        const byAccount = rows.filter(row =>
-
-            normalize(row.desc)
-                .includes(account)
-
-        );
+        const byAccount =
+            rows.filter(row =>
+                norm(row.desc)
+                    .includes(account)
+            );
 
         if (byAccount.length)
             return byAccount;
 
     }
 
-
     /*
-       Depois tenta identificar pelo nome
-       do fundo.
+       Depois tenta pelo nome do fundo/produto.
     */
 
-    if (result.fund) {
+    const productText =
+        norm(
+            result.fund ||
+            result.product
+        );
 
-        const fundWords =
-            normalize(result.fund)
+    if (productText) {
+
+        const words =
+            productText
                 .split(" ")
-                .filter(word => word.length >= 3);
+                .filter(x => x.length >= 3);
 
-        const byFund =
+        const byProduct =
             rows.filter(row => {
 
-                const description =
-                    normalize(row.desc);
+                const desc =
+                    norm(row.desc);
 
                 const matches =
-                    fundWords.filter(
+                    words.filter(
                         word =>
-                            description.includes(word)
+                            desc.includes(word)
                     ).length;
 
                 return matches >=
-                    Math.min(3, fundWords.length);
+                    Math.min(2, words.length);
 
             });
 
-        if (byFund.length)
-            return byFund;
+        if (byProduct.length)
+            return byProduct;
 
     }
-
 
     /*
        Tenta identificar CDB.
@@ -1205,7 +908,7 @@ function findCandidates(result) {
 
         const cdbRows =
             rows.filter(row =>
-                normalize(row.desc)
+                norm(row.desc)
                     .includes("cdb")
             );
 
@@ -1214,19 +917,13 @@ function findCandidates(result) {
 
     }
 
-
-    /*
-       Último recurso:
-       todas as linhas da aba.
-    */
-
     return rows;
 
 }
 
 
 /* ============================================================
-   RENDERIZA ARQUIVOS
+   RENDERIZA LISTA DE ARQUIVOS
 ============================================================ */
 
 function renderFiles() {
@@ -1235,7 +932,7 @@ function renderFiles() {
         files.map(file =>
 
             `<span class="file">
-                📄 ${escapeHtml(file.name)}
+                📄 ${esc(file.name)}
             </span>`
 
         ).join("");
@@ -1249,7 +946,8 @@ function renderFiles() {
 
 function renderMapping() {
 
-    $("mappingCard").classList.remove("hidden");
+    $("mappingCard")
+        .classList.remove("hidden");
 
     $("mappingBody").innerHTML =
         results.map((result,index) => {
@@ -1257,35 +955,37 @@ function renderMapping() {
             const candidates =
                 findCandidates(result);
 
-            let options = "";
-
-            if (candidates.length) {
-
-                options =
-                    candidates.map(row =>
-
-                        `<option value="${row.row}">
-                            Linha ${row.row} - ${escapeHtml(row.desc)}
-                        </option>`
-
-                    ).join("");
-
-            } else {
-
-                options =
-                    `<option value="">
-                        Nenhuma linha encontrada
-                    </option>`;
-
-            }
-
-
-            if (candidates.length === 1) {
+            if (
+                candidates.length === 1
+            ) {
 
                 result.row =
                     candidates[0].row;
 
             }
+
+            const options =
+                candidates.length
+
+                ? candidates.map(row =>
+
+                    `<option value="${row.row}"
+                        ${
+                            result.row === row.row
+                                ? "selected"
+                                : ""
+                        }>
+
+                        Linha ${row.row} -
+                        ${esc(row.desc)}
+
+                    </option>`
+
+                  ).join("")
+
+                : `<option value="">
+                    Nenhuma linha encontrada
+                  </option>`;
 
 
             return `
@@ -1297,27 +997,33 @@ function renderMapping() {
                 }">
 
                     <td>
-                        ${escapeHtml(result.file)}
+                        ${esc(result.file)}
                     </td>
 
                     <td>
-                        ${escapeHtml(
-                            result.sheet || "Não encontrada"
+                        ${esc(
+                            result.sheet ||
+                            "Não encontrada"
                         )}
                     </td>
 
                     <td>
-                        ${escapeHtml(
-                            result.account || "—"
+                        ${esc(
+                            result.account ||
+                            "—"
                         )}
                     </td>
 
                     <td>
 
                         <select
-                            data-index="${index}"
                             class="row-selector"
-                            ${!candidates.length ? "disabled" : ""}
+                            data-index="${index}"
+                            ${
+                                !candidates.length
+                                    ? "disabled"
+                                    : ""
+                            }
                         >
 
                             ${options}
@@ -1359,11 +1065,15 @@ function renderMapping() {
 
                     const index =
                         Number(
-                            event.target.dataset.index
+                            event.target
+                                .dataset
+                                .index
                         );
 
                     results[index].row =
-                        Number(event.target.value);
+                        Number(
+                            event.target.value
+                        );
 
                 }
             );
@@ -1385,39 +1095,49 @@ function renderResults() {
             <tr>
 
                 <td>
-                    ${escapeHtml(result.file)}
+                    ${esc(result.file)}
                 </td>
 
                 <td>
-                    ${escapeHtml(result.sheet || "—")}
-                </td>
-
-                <td class="numeric">
-                    ${formatMoney(result.saldoExtrato)}
-                </td>
-
-                <td class="numeric">
-                    ${formatMoney(
-                        result.resgate !== null
-                            ? -Math.abs(result.resgate)
-                            : null
+                    ${esc(
+                        result.sheet || "—"
                     )}
                 </td>
 
                 <td class="numeric">
-                    ${formatMoney(result.aplicacao)}
+                    ${fmt(
+                        result.saldoExtrato
+                    )}
                 </td>
 
                 <td class="numeric">
-                    ${formatMoney(result.rendimento)}
+                    ${fmt(
+                        result.resgate
+                    )}
                 </td>
 
                 <td class="numeric">
-                    ${formatMoney(result.irIof)}
+                    ${fmt(
+                        result.aplicacao
+                    )}
                 </td>
 
                 <td class="numeric">
-                    ${formatMoney(result.saldoFinal)}
+                    ${fmt(
+                        result.rendimento
+                    )}
+                </td>
+
+                <td class="numeric">
+                    ${fmt(
+                        result.irIof
+                    )}
+                </td>
+
+                <td class="numeric">
+                    ${fmt(
+                        result.saldoFinal
+                    )}
                 </td>
 
             </tr>
@@ -1428,213 +1148,995 @@ function renderResults() {
 
 
 /* ============================================================
-   CRIA PLANILHA
+   DATA DA SEGUNDA TABELA
+============================================================ */
+
+function previousMonthEnd() {
+
+    const today =
+        new Date();
+
+    return new Date(
+        today.getFullYear(),
+        today.getMonth(),
+        0
+    );
+
+}
+
+
+function excelDate(date) {
+
+    return XLSX.utils.js_to_sheet
+        ? date
+        : date;
+
+}
+
+
+/* ============================================================
+   ESTILOS
+============================================================ */
+
+const COLORS = {
+
+    blue: "4472C4",
+    lightBlue: "D9EAF7",
+
+    green: "70AD47",
+    lightGreen: "E2F0D9",
+
+    yellow: "FFF2CC",
+
+    white: "FFFFFF",
+
+    gray: "D9E1F2",
+
+    black: "000000"
+
+};
+
+
+function borderStyle() {
+
+    return {
+
+        top: {
+            style:"thin",
+            color:{rgb:"000000"}
+        },
+
+        bottom: {
+            style:"thin",
+            color:{rgb:"000000"}
+        },
+
+        left: {
+            style:"thin",
+            color:{rgb:"000000"}
+        },
+
+        right: {
+            style:"thin",
+            color:{rgb:"000000"}
+        }
+
+    };
+
+}
+
+
+function styleCell(
+    cell,
+    fill,
+    bold = false,
+    color = "000000"
+) {
+
+    cell.s = {
+
+        fill:{
+            fgColor:{
+                rgb:fill
+            }
+        },
+
+        font:{
+            bold,
+            color:{
+                rgb:color
+            }
+        },
+
+        border:borderStyle(),
+
+        alignment:{
+            vertical:"center"
+        }
+
+    };
+
+}
+
+
+/* ============================================================
+   PRIMEIRA TABELA
+============================================================ */
+
+function createFirstTable(
+    ws,
+    sheetName,
+    rows
+) {
+
+    /*
+       A primeira tabela começa em B2.
+
+       B = CÓDIGO
+       C = DESCRIÇÃO
+       D = SALDO CONTÁBIL
+       E = SALDO EXTRATO
+       F = DIFERENÇA
+       G = RESGATE
+       H = APLICAÇÃO
+       I = RENDIMENTO
+       J = IR E IOF
+       K = SALDO
+       L = SALDO FINAL
+       M = DIFERENÇA
+    */
+
+
+    const headers = [
+
+        "CÓDIGO",
+        "DESCRIÇÃO",
+        "SALDO CONTÁBIL",
+        "SALDO EXTRATO",
+        "DIFERENÇA",
+        "RESGATE",
+        "APLICAÇÃO",
+        "RENDIMENTO",
+        "IR E IOF",
+        "SALDO",
+        "SALDO FINAL",
+        "DIFERENÇA"
+
+    ];
+
+
+    /*
+       Linha 2
+    */
+
+    headers.forEach(
+        (header,index) => {
+
+            const cell =
+                XLSX.utils.encode_cell({
+
+                    r:1,
+                    c:index + 1
+
+                });
+
+            ws[cell] = {
+                t:"s",
+                v:header
+            };
+
+            styleCell(
+                ws[cell],
+                COLORS.blue,
+                true,
+                COLORS.white
+            );
+
+            ws[cell].s.alignment = {
+
+                horizontal:"center",
+                vertical:"center"
+
+            };
+
+        }
+    );
+
+
+    /*
+       Linhas dos investimentos
+    */
+
+    rows.forEach(
+        (item,index) => {
+
+            const excelRow =
+                index + 3;
+
+
+            /*
+               B - Código
+            */
+
+            ws[`B${excelRow}`] = {
+
+                t:"s",
+                v:String(item.code)
+
+            };
+
+
+            /*
+               C - Descrição
+            */
+
+            ws[`C${excelRow}`] = {
+
+                t:"s",
+                v:item.desc
+
+            };
+
+
+            /*
+               D - Saldo contábil
+            */
+
+            ws[`D${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               E - Saldo extrato
+            */
+
+            ws[`E${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               F - Diferença
+            */
+
+            ws[`F${excelRow}`] = {
+
+                t:"f",
+                f:`E${excelRow}-D${excelRow}`,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               G - Resgate
+            */
+
+            ws[`G${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               H - Aplicação
+            */
+
+            ws[`H${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               I - Rendimento
+            */
+
+            ws[`I${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               J - IR e IOF
+            */
+
+            ws[`J${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               K - Saldo
+            */
+
+            ws[`K${excelRow}`] = {
+
+                t:"f",
+
+                f:
+                `=SUM(D${excelRow})+SUM(G${excelRow}:J${excelRow})`,
+
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               L - Saldo final
+            */
+
+            ws[`L${excelRow}`] = {
+
+                t:"n",
+                v:0,
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               M - Diferença
+            */
+
+            ws[`M${excelRow}`] = {
+
+                t:"f",
+
+                f:
+                `=L${excelRow}-K${excelRow}`,
+
+                z:'#,##0.00'
+
+            };
+
+
+            /*
+               Estilo das células
+            */
+
+            for (
+                let c = 1;
+                c <= 12;
+                c++
+            ) {
+
+                const cell =
+                    ws[
+                        XLSX.utils.encode_cell({
+                            r:excelRow-1,
+                            c
+                        })
+                    ];
+
+                if (!cell)
+                    continue;
+
+                cell.s = {
+
+                    border:
+                        borderStyle(),
+
+                    alignment:{
+                        vertical:"center"
+                    }
+
+                };
+
+            }
+
+
+            /*
+               Colunas de entrada
+            */
+
+            styleCell(
+                ws[`E${excelRow}`],
+                COLORS.lightBlue
+            );
+
+            styleCell(
+                ws[`G${excelRow}`],
+                COLORS.yellow
+            );
+
+            styleCell(
+                ws[`H${excelRow}`],
+                COLORS.yellow
+            );
+
+
+            /*
+               Fórmulas azuis
+            */
+
+            styleCell(
+                ws[`F${excelRow}`],
+                COLORS.lightBlue
+            );
+
+            styleCell(
+                ws[`K${excelRow}`],
+                COLORS.lightBlue
+            );
+
+            styleCell(
+                ws[`M${excelRow}`],
+                COLORS.lightBlue
+            );
+
+        }
+    );
+
+
+    /*
+       TOTAL
+    */
+
+    const totalRow =
+        rows.length + 3;
+
+
+    ws[`C${totalRow}`] = {
+
+        t:"s",
+        v:"TOTAL"
+
+    };
+
+
+    for (
+        const col of [
+            "D","E","F","G",
+            "H","I","J","K",
+            "L","M"
+        ]
+    ) {
+
+        ws[`${col}${totalRow}`] = {
+
+            t:"f",
+
+            f:
+            `SUM(${col}3:${col}${totalRow-1})`,
+
+            z:'#,##0.00'
+
+        };
+
+    }
+
+
+    for (
+        let c = 1;
+        c <= 12;
+        c++
+    ) {
+
+        const cell =
+            ws[
+                XLSX.utils.encode_cell({
+                    r:totalRow-1,
+                    c
+                })
+            ];
+
+        if (!cell)
+            continue;
+
+        cell.s = {
+
+            border:borderStyle(),
+
+            font:{
+                bold:true
+            },
+
+            fill:{
+                fgColor:{
+                    rgb:"E7E6E6"
+                }
+            }
+
+        };
+
+    }
+
+
+    return totalRow;
+
+}
+
+
+/* ============================================================
+   SEGUNDA TABELA
+============================================================ */
+
+function createSecondTable(
+    ws,
+    rows,
+    firstTotalRow
+) {
+
+    /*
+       Uma linha em branco entre as tabelas.
+
+       A primeira tabela termina em firstTotalRow.
+
+       A segunda começa duas linhas depois.
+    */
+
+    const startRow =
+        firstTotalRow + 2;
+
+
+    /*
+       Cabeçalho
+
+       B = DATA
+       C = CÓDIGO
+       D = HISTÓRICO
+       E = VALOR - ABS
+    */
+
+    const headers = [
+
+        "DATA",
+        "CÓDIGO",
+        "HISTÓRICO",
+        "VALOR - ABS"
+
+    ];
+
+
+    headers.forEach(
+        (header,index) => {
+
+            const cell =
+                XLSX.utils.encode_cell({
+
+                    r:startRow-1,
+                    c:index + 1
+
+                });
+
+            ws[cell] = {
+
+                t:"s",
+                v:header
+
+            };
+
+            styleCell(
+                ws[cell],
+                COLORS.blue,
+                true,
+                COLORS.white
+            );
+
+        }
+    );
+
+
+    /*
+       Primeiro dia:
+       último dia do mês anterior.
+    */
+
+    const previous =
+        previousMonthEnd();
+
+
+    /*
+       Cada investimento terá:
+
+       RENDIMENTO
+       IRRF E IOF
+       RESGATE
+       APLICAÇÃO
+    */
+
+    const types = [
+
+        "RENDIMENTO",
+        "IRRF E IOF",
+        "RESGATE",
+        "APLICAÇÃO"
+
+    ];
+
+
+    let currentRow =
+        startRow + 1;
+
+
+    rows.forEach(
+        (item,index) => {
+
+            const firstTableRow =
+                index + 3;
+
+
+            types.forEach(
+                type => {
+
+                    /*
+                       B - DATA
+                    */
+
+                    if (
+                        currentRow ===
+                        startRow + 1
+                    ) {
+
+                        ws[`B${currentRow}`] = {
+
+                            t:"d",
+                            v:previous
+
+                        };
+
+                    } else {
+
+                        ws[`B${currentRow}`] = {
+
+                            t:"f",
+                            f:`=B${currentRow-1}`
+
+                        };
+
+                    }
+
+
+                    /*
+                       C - Código
+                    */
+
+                    ws[`C${currentRow}`] = {
+
+                        t:"s",
+                        v:String(item.code)
+
+                    };
+
+
+                    /*
+                       D - Histórico
+                    */
+
+                    ws[`D${currentRow}`] = {
+
+                        t:"s",
+                        v:type
+
+                    };
+
+
+                    /*
+                       E - Valor ABS
+
+                       Liga diretamente à
+                       primeira tabela.
+                    */
+
+                    let sourceColumn;
+
+
+                    if (type === "RENDIMENTO")
+                        sourceColumn = "I";
+
+                    if (type === "IRRF E IOF")
+                        sourceColumn = "J";
+
+                    if (type === "RESGATE")
+                        sourceColumn = "G";
+
+                    if (type === "APLICAÇÃO")
+                        sourceColumn = "H";
+
+
+                    ws[`E${currentRow}`] = {
+
+                        t:"f",
+
+                        f:
+                        `=ABS(${sourceColumn}${firstTableRow})`,
+
+                        z:'#,##0.00'
+
+                    };
+
+
+                    /*
+                       Estilo da linha
+                    */
+
+                    for (
+                        const col of [
+                            "B","C","D","E"
+                        ]
+                    ) {
+
+                        const cell =
+                            ws[
+                                `${col}${currentRow}`
+                            ];
+
+                        cell.s = {
+
+                            border:
+                                borderStyle(),
+
+                            alignment:{
+                                vertical:"center"
+                            }
+
+                        };
+
+                    }
+
+
+                    /*
+                       Data em verde
+                    */
+
+                    styleCell(
+                        ws[`B${currentRow}`],
+                        COLORS.lightGreen
+                    );
+
+
+                    /*
+                       Códigos
+                    */
+
+                    styleCell(
+                        ws[`C${currentRow}`],
+                        COLORS.white
+                    );
+
+
+                    /*
+                       Histórico
+                    */
+
+                    if (
+                        type === "RENDIMENTO"
+                    ) {
+
+                        styleCell(
+                            ws[`D${currentRow}`],
+                            COLORS.lightGreen
+                        );
+
+                    } else {
+
+                        styleCell(
+                            ws[`D${currentRow}`],
+                            COLORS.yellow
+                        );
+
+                    }
+
+
+                    /*
+                       Valor
+                    */
+
+                    styleCell(
+                        ws[`E${currentRow}`],
+                        COLORS.lightBlue
+                    );
+
+
+                    currentRow++;
+
+                }
+            );
+
+        }
+    );
+
+
+    /*
+       Total da segunda tabela
+    */
+
+    ws[`D${currentRow}`] = {
+
+        t:"s",
+        v:"TOTAL"
+
+    };
+
+
+    ws[`E${currentRow}`] = {
+
+        t:"f",
+
+        f:
+        `SUM(E${startRow+1}:E${currentRow-1})`,
+
+        z:'#,##0.00'
+
+    };
+
+
+    styleCell(
+        ws[`D${currentRow}`],
+        COLORS.blue,
+        true,
+        COLORS.white
+    );
+
+    styleCell(
+        ws[`E${currentRow}`],
+        COLORS.lightBlue,
+        true
+    );
+
+
+    /*
+       Formato da data
+    */
+
+    for (
+        let r = startRow + 1;
+        r < currentRow;
+        r++
+    ) {
+
+        ws[`B${r}`].z =
+            "dd/mm/yyyy";
+
+    }
+
+
+    return currentRow;
+
+}
+
+
+/* ============================================================
+   LARGURA DAS COLUNAS
+============================================================ */
+
+function setColumnWidths(ws) {
+
+    ws["!cols"] = [
+
+        {wch:3},
+
+        {wch:12},  // B código/data
+
+        {wch:35},  // C
+
+        {wch:18},  // D
+
+        {wch:18},  // E
+
+        {wch:16},  // F
+
+        {wch:16},  // G
+
+        {wch:16},  // H
+
+        {wch:16},  // I
+
+        {wch:16},  // J
+
+        {wch:16},  // K
+
+        {wch:16},  // L
+
+        {wch:16}   // M
+
+    ];
+
+}
+
+
+/* ============================================================
+   CRIA WORKBOOK
 ============================================================ */
 
 function createWorkbook() {
 
-    const workbook =
+    const wb =
         XLSX.utils.book_new();
 
 
-    for (const sheetName of Object.keys(SHEETS)) {
+    for (
+        const sheetName of Object.keys(SHEETS)
+    ) {
 
         const rows =
             SHEETS[sheetName];
 
 
-        const data = [
+        /*
+           Cria uma planilha vazia.
+        */
 
-            [
-                "CÓDIGO",
-                "DESCRIÇÃO",
-                "SALDO CONTÁBIL",
-                "SALDO EXTRATO",
-                "DIFERENÇA",
-                "RESGATES",
-                "APLICAÇÃO",
-                "RENDIMENTO",
-                "IR E IOF",
-                "SALDO",
-                "SALDO FINAL",
-                "DIFERENÇA"
-            ]
-
-        ];
-
-
-        for (const row of rows) {
-
-            data.push([
-
-                "",
-                row.desc,
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                "",
-                ""
-
-            ]);
-
-        }
-
-
-        const totalRow =
-            data.length + 1;
-
-        data.push([
-
-            "",
-            "TOTAL",
-
-            `=SUM(C2:C${data.length})`,
-            `=SUM(D2:D${data.length})`,
-            `=SUM(E2:E${data.length})`,
-            `=SUM(F2:F${data.length})`,
-            `=SUM(G2:G${data.length})`,
-            `=SUM(H2:H${data.length})`,
-            `=SUM(I2:I${data.length})`,
-            `=SUM(J2:J${data.length})`,
-            `=SUM(K2:K${data.length})`,
-            `=SUM(L2:L${data.length})`
-
-        ]);
-
-
-        const ws =
-            XLSX.utils.aoa_to_sheet(data);
+        const ws = {};
 
 
         /*
-           Fórmula da diferença:
-           Saldo Extrato - Saldo Contábil
+           Primeira tabela.
         */
 
-        for (let r = 2; r < totalRow; r++) {
-
-            ws[`E${r}`] =
-                {
-                    t: "f",
-                    f: `D${r}-C${r}`
-                };
-
-
-            /*
-               Saldo =
-               Saldo Contábil
-               + Resgate
-               + Aplicação
-               + Rendimento
-               + IR/IOF
-            */
-
-            ws[`J${r}`] =
-                {
-                    t: "f",
-                    f: `SUM(C${r},F${r}:I${r})`
-                };
-
-
-            /*
-               Diferença =
-               Saldo Final - Saldo
-            */
-
-            ws[`L${r}`] =
-                {
-                    t: "f",
-                    f: `K${r}-J${r}`
-                };
-
-        }
-
-
-        ws["!cols"] = [
-
-            {wch:10},
-            {wch:48},
-            {wch:16},
-            {wch:16},
-            {wch:14},
-            {wch:16},
-            {wch:16},
-            {wch:16},
-            {wch:16},
-            {wch:16},
-            {wch:16},
-            {wch:14}
-
-        ];
+        const firstTotal =
+            createFirstTable(
+                ws,
+                sheetName,
+                rows
+            );
 
 
         /*
-           Cabeçalho
+           Segunda tabela.
         */
 
-        for (let c = 0; c < 12; c++) {
-
-            const cell =
-                XLSX.utils.encode_cell({
-                    r:0,
-                    c:c
-                });
-
-            ws[cell].s = {
-
-                fill: {
-                    fgColor: {
-                        rgb: "1F4E79"
-                    }
-                },
-
-                font: {
-                    bold: true,
-                    color: {
-                        rgb: "FFFFFF"
-                    }
-                },
-
-                alignment: {
-                    horizontal: "center"
-                }
-
-            };
-
-        }
+        createSecondTable(
+            ws,
+            rows,
+            firstTotal
+        );
 
 
         /*
-           Formato numérico
+           Área utilizada.
         */
 
-        for (let r = 2; r <= totalRow; r++) {
+        const secondTableEnd =
+            firstTotal +
+            2 +
+            rows.length * 4 +
+            1;
 
-            for (const col of [
-                "C","D","E","F",
-                "G","H","I","J",
-                "K","L"
-            ]) {
 
-                if (ws[`${col}${r}`]) {
+        ws["!ref"] =
+            `B2:M${secondTableEnd}`;
 
-                    ws[`${col}${r}`].z =
-                        '#,##0.00';
 
-                }
+        setColumnWidths(ws);
 
-            }
 
-        }
+        /*
+           Congela as duas primeiras linhas.
+        */
+
+        ws["!freeze"] = {
+            xSplit:0,
+            ySplit:2
+        };
 
 
         XLSX.utils.book_append_sheet(
-            workbook,
+            wb,
             ws,
             sheetName
         );
@@ -1642,23 +2144,313 @@ function createWorkbook() {
     }
 
 
-    return workbook;
+    return wb;
 
 }
 
 
 /* ============================================================
-   PREENCHE PLANILHA
+   PREENCHE OS DADOS EXTRAÍDOS
+============================================================ */
+
+function applyResultsToWorkbook(
+    wb
+) {
+
+    for (
+        const result of results
+    ) {
+
+        if (!result.sheet)
+            continue;
+
+        if (!result.row)
+            continue;
+
+
+        const ws =
+            wb.Sheets[result.sheet];
+
+
+        const row =
+            result.row;
+
+
+        /*
+           E = Saldo extrato
+        */
+
+        ws[`E${row}`] = {
+
+            t:"n",
+
+            v:
+                result.saldoExtrato ??
+                0,
+
+            z:'#,##0.00'
+
+        };
+
+
+        /*
+           G = Resgate
+
+           Valor negativo na primeira
+           tabela.
+        */
+
+        ws[`G${row}`] = {
+
+            t:"n",
+
+            v:
+                result.resgate
+                    ? -Math.abs(
+                        result.resgate
+                    )
+                    : 0,
+
+            z:'#,##0.00'
+
+        };
+
+
+        /*
+           H = Aplicação
+        */
+
+        ws[`H${row}`] = {
+
+            t:"n",
+
+            v:
+                result.aplicacao ??
+                0,
+
+            z:'#,##0.00'
+
+        };
+
+
+        /*
+           I = Rendimento
+        */
+
+        ws[`I${row}`] = {
+
+            t:"n",
+
+            v:
+                result.rendimento ??
+                0,
+
+            z:'#,##0.00'
+
+        };
+
+
+        /*
+           J = IR e IOF
+
+           Negativo.
+        */
+
+        ws[`J${row}`] = {
+
+            t:"n",
+
+            v:
+                result.irIof
+                    ? -Math.abs(
+                        result.irIof
+                    )
+                    : 0,
+
+            z:'#,##0.00'
+
+        };
+
+
+        /*
+           L = Saldo final
+        */
+
+        ws[`L${row}`] = {
+
+            t:"n",
+
+            v:
+                result.saldoFinal ??
+                0,
+
+            z:'#,##0.00'
+
+        };
+
+
+        /*
+           Reaplica estilos.
+        */
+
+        styleCell(
+            ws[`E${row}`],
+            COLORS.lightBlue
+        );
+
+        styleCell(
+            ws[`G${row}`],
+            COLORS.yellow
+        );
+
+        styleCell(
+            ws[`H${row}`],
+            COLORS.yellow
+        );
+
+        styleCell(
+            ws[`I${row}`],
+            COLORS.yellow
+        );
+
+        styleCell(
+            ws[`J${row}`],
+            COLORS.yellow
+        );
+
+        styleCell(
+            ws[`L${row}`],
+            COLORS.lightBlue
+        );
+
+    }
+
+}
+
+
+/* ============================================================
+   PROCESSA OS PDFs
+============================================================ */
+
+async function processFiles() {
+
+    results = [];
+
+    generatedWorkbook = null;
+
+    $("generateButton")
+        .disabled = true;
+
+    $("downloadButton")
+        .disabled = true;
+
+
+    for (
+        let i = 0;
+        i < files.length;
+        i++
+    ) {
+
+        $("status").textContent =
+            `Processando ${
+                i+1
+            } de ${
+                files.length
+            }...`;
+
+
+        try {
+
+            const result =
+                await processPdf(
+                    files[i]
+                );
+
+            results.push(result);
+
+        } catch(error) {
+
+            console.error(error);
+
+            results.push({
+
+                file:
+                    files[i].name,
+
+                prefix:
+                    getPrefix(
+                        files[i].name
+                    ),
+
+                sheet:
+                    findSheet(
+                        getPrefix(
+                            files[i].name
+                        )
+                    ),
+
+                account:null,
+
+                saldoExtrato:null,
+
+                resgate:null,
+
+                aplicacao:null,
+
+                rendimento:null,
+
+                irIof:null,
+
+                saldoFinal:null,
+
+                error:
+                    error.message
+
+            });
+
+        }
+
+    }
+
+
+    renderMapping();
+
+    renderResults();
+
+
+    const valid =
+        results.length > 0 &&
+        results.every(
+            r =>
+                r.sheet &&
+                r.row
+        );
+
+
+    $("generateButton")
+        .disabled = !valid;
+
+
+    $("status").textContent =
+        "Processamento concluído. Confira os dados.";
+
+}
+
+
+/* ============================================================
+   GERAR PLANILHA
 ============================================================ */
 
 function generateWorkbook() {
 
-    for (const result of results) {
+    for (
+        const result of results
+    ) {
 
         if (!result.sheet) {
 
             alert(
-                `A aba do PDF "${result.file}" não foi encontrada.`
+                `A aba do arquivo "${result.file}" não foi encontrada.`
             );
 
             return;
@@ -1668,7 +2460,7 @@ function generateWorkbook() {
         if (!result.row) {
 
             alert(
-                `Selecione a linha da planilha para "${result.file}".`
+                `Selecione a linha correspondente ao arquivo "${result.file}".`
             );
 
             return;
@@ -1682,131 +2474,23 @@ function generateWorkbook() {
         createWorkbook();
 
 
-    for (const result of results) {
-
-        const ws =
-            generatedWorkbook.Sheets[
-                result.sheet
-            ];
+    applyResultsToWorkbook(
+        generatedWorkbook
+    );
 
 
-        const r =
-            result.row;
+    $("downloadButton")
+        .disabled = false;
 
-
-        /*
-           D = SALDO EXTRATO
-
-           Vlr Princ. do Saldo Anterior
-        */
-
-        ws[`D${r}`] = {
-
-            t: "n",
-            v: result.saldoExtrato ?? 0,
-            z: "#,##0.00"
-
-        };
-
-
-        /*
-           F = RESGATE
-
-           Vlr Líquido do Total de Resgates.
-
-           Entra negativo.
-        */
-
-        ws[`F${r}`] = {
-
-            t: "n",
-
-            v: result.resgate
-                ? -Math.abs(result.resgate)
-                : 0,
-
-            z: "#,##0.00"
-
-        };
-
-
-        /*
-           G = APLICAÇÃO
-
-           Vlr Princ. do Total de Aplicações.
-        */
-
-        ws[`G${r}`] = {
-
-            t: "n",
-            v: result.aplicacao ?? 0,
-            z: "#,##0.00"
-
-        };
-
-
-        /*
-           H = RENDIMENTO
-
-           Renda Total do Resgate
-           +
-           Renda Total do Saldo Final.
-        */
-
-        ws[`H${r}`] = {
-
-            t: "n",
-            v: result.rendimento ?? 0,
-            z: "#,##0.00"
-
-        };
-
-
-        /*
-           I = IR E IOF
-
-           SOMENTE IRRF + IOF DO RESGATE.
-
-           Entra negativo.
-        */
-
-        ws[`I${r}`] = {
-
-            t: "n",
-            v: result.irIof ?? 0,
-            z: "#,##0.00"
-
-        };
-
-
-        /*
-           K = SALDO FINAL
-
-           Vlr Líquido do Total do Saldo Final.
-        */
-
-        ws[`K${r}`] = {
-
-            t: "n",
-            v: result.saldoFinal ?? 0,
-            z: "#,##0.00"
-
-        };
-
-    }
-
-
-    $("downloadButton").disabled =
-        false;
 
     $("status").textContent =
-        "Planilha gerada. Clique em Baixar Excel.";
+        "Planilha gerada com sucesso.";
 
 }
 
 
 /* ============================================================
-   DOWNLOAD
+   DOWNLOAD DO EXCEL
 ============================================================ */
 
 function downloadWorkbook() {
@@ -1819,9 +2503,9 @@ function downloadWorkbook() {
         XLSX.write(
             generatedWorkbook,
             {
-                bookType: "xlsx",
-                type: "array",
-                cellStyles: true
+                bookType:"xlsx",
+                type:"array",
+                cellStyles:true
             }
         );
 
@@ -1850,107 +2534,18 @@ function downloadWorkbook() {
         "2026_07_Conciliação_Aplicação_Preenchida.xlsx";
 
 
+    document.body.appendChild(link);
+
     link.click();
+
+    document.body.removeChild(link);
 
 
     setTimeout(
-        () => URL.revokeObjectURL(url),
+        () =>
+            URL.revokeObjectURL(url),
         1000
     );
-
-}
-
-
-/* ============================================================
-   PROCESSA ARQUIVOS
-============================================================ */
-
-async function processFiles() {
-
-    results = [];
-
-    generatedWorkbook = null;
-
-    $("generateButton").disabled =
-        true;
-
-    $("downloadButton").disabled =
-        true;
-
-
-    for (
-        let i = 0;
-        i < files.length;
-        i++
-    ) {
-
-        $("status").textContent =
-            `Processando ${i + 1} de ${files.length}...`;
-
-
-        try {
-
-            const result =
-                await processPdf(files[i]);
-
-            results.push(result);
-
-        } catch (error) {
-
-            console.error(error);
-
-            results.push({
-
-                file: files[i].name,
-
-                sheet:
-                    findSheet(
-                        getPrefix(files[i].name)
-                    ),
-
-                account: null,
-
-                saldoExtrato: null,
-
-                resgate: null,
-
-                aplicacao: null,
-
-                rendimento: null,
-
-                irIof: null,
-
-                saldoFinal: null,
-
-                error: error.message
-
-            });
-
-        }
-
-    }
-
-
-    renderMapping();
-
-    renderResults();
-
-
-    const allValid =
-        results.length > 0 &&
-        results.every(
-            result =>
-                result.sheet &&
-                findCandidates(result).length > 0
-        );
-
-
-    $("generateButton").disabled =
-        !allValid;
-
-
-    $("status").textContent =
-        "Processamento concluído. Confira os valores.";
 
 }
 
@@ -1989,6 +2584,7 @@ fileInput.addEventListener(
 
         renderFiles();
 
+
         if (files.length)
             processFiles();
 
@@ -1997,7 +2593,7 @@ fileInput.addEventListener(
 
 
 /* ============================================================
-   DRAG & DROP
+   DRAG AND DROP
 ============================================================ */
 
 dropArea.addEventListener(
@@ -2006,7 +2602,9 @@ dropArea.addEventListener(
 
         event.preventDefault();
 
-        dropArea.classList.add("drag");
+        dropArea.classList.add(
+            "drag"
+        );
 
     }
 );
@@ -2016,7 +2614,9 @@ dropArea.addEventListener(
     "dragleave",
     () => {
 
-        dropArea.classList.remove("drag");
+        dropArea.classList.remove(
+            "drag"
+        );
 
     }
 );
@@ -2028,7 +2628,9 @@ dropArea.addEventListener(
 
         event.preventDefault();
 
-        dropArea.classList.remove("drag");
+        dropArea.classList.remove(
+            "drag"
+        );
 
 
         files =
@@ -2043,6 +2645,7 @@ dropArea.addEventListener(
 
 
         renderFiles();
+
 
         if (files.length)
             processFiles();
@@ -2082,33 +2685,47 @@ $("clearButton")
 
             fileInput.value = "";
 
-            $("fileList").innerHTML = "";
+            $("fileList")
+                .innerHTML = "";
 
-            $("mappingBody").innerHTML = "";
+            $("mappingBody")
+                .innerHTML = "";
 
-            $("resultBody").innerHTML = `
+            $("resultBody")
+                .innerHTML = `
 
-                <tr>
-                    <td colspan="8"
-                        style="text-align:center">
+                    <tr>
 
-                        Nenhum PDF processado.
+                        <td
+                            colspan="8"
+                            style="text-align:center"
+                        >
 
-                    </td>
-                </tr>
+                            Nenhum PDF processado.
 
-            `;
+                        </td>
+
+                    </tr>
+
+                `;
+
 
             $("mappingCard")
-                .classList.add("hidden");
+                .classList.add(
+                    "hidden"
+                );
 
-            $("generateButton").disabled =
-                true;
 
-            $("downloadButton").disabled =
-                true;
+            $("generateButton")
+                .disabled = true;
 
-            $("status").textContent = "";
+
+            $("downloadButton")
+                .disabled = true;
+
+
+            $("status")
+                .textContent = "";
 
         }
     );

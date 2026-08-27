@@ -1096,7 +1096,7 @@ const rendimento =
         irIof,
 
         saldoFinal:
-            saldoFinal?.liquido ?? null,
+            saldoFinal?.bruto ?? null,
 
         /*
            Dados individuais mantidos
@@ -1539,7 +1539,7 @@ function createWorkbook() {
             ws[`J${r}`] =
                 {
                     t: "f",
-                    f: `SUM(C${r},F${r}:I${r})`
+                    f: `SOMA(C${r},F${r}:I${r})`
                 };
 
 
